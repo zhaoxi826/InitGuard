@@ -1,3 +1,2 @@
-from .database import Database,PostgresDatabase
-from .oss import Oss,MinioOss
-from .logger import TaskLogger
+from postgres_instance import PostgresInstance
+from redis_instance import RedisInstance

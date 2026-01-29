@@ -1,6 +1,6 @@
-from module import PostgresDatabase
-from module import MinioOss
-from task import SaveTask
+from resource.object_module import PostgresDatabase
+from resource.object_module import MinioOss
+from resource.task import SaveTask
 
 
 def main():
