@@ -1,3 +1,4 @@
+from pydantic import BaseModel
 from .task_model import TaskProcess,BaseTask
 from resource.object_module import Oss,Database
 from sqlmodel import Field,JSON

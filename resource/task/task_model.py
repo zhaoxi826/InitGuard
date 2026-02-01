@@ -6,7 +6,7 @@ from typing import Dict, Any
 class BaseTask(SQLModel,Table=True):
     __tablename__ = "tasks_list"
     task_id: int | None = Field(default=None, primary_key=True)
-    task_name: str = Field(default="backup_task")
+    task_name: str = Field(default="default_task")
     task_status: str = Field(default="Pending")
     create_time: datetime.datetime = Field(default=datetime.datetime.now())
     update_time: datetime.datetime | None = Field(default=None)

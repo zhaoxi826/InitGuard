@@ -4,18 +4,18 @@ import datetime
 import time
 
 class Consumer:
-    def __init__(self,redis_instance:RedisInstance,postgre_instance:PostgresInstance):
-        self.redis_instanse = redis_instance
-        self.postgre_instance = postgre_instance
+    def __init__(self,redis_instance:RedisInstance,postgres_instance:PostgresInstance):
+        self.redis_instance = redis_instance
+        self.postgres_instance = postgres_instance
 
     def run(self):
-        task_id = self.redis_instanse.get_task()
+        task_id = self.redis_instance.get_task()
         if task_id:
-            task_instance = self.postgre_instance.get_task(task_id)
+            task_instance = self.postgres_instance.get_task(task_id)
             match task_instance:
                 case BackupTask():
-                    database_instance = self.postgre_instance.get_database(task_instance.database_id)
-                    oss_instance = self.postgre_instance.get_oss(task_instance.oss_id)
+                    database_instance = self.postgres_instance.get_database(task_instance.database_id)
+                    oss_instance = self.postgres_instance.get_oss(task_instance.oss_id)
                     target_path = "/backup/{}/{}.sql".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"),task_id)
                     BackupTaskProcess(task_instance,database_instance,oss_instance,target_path).run()
                 case _:
