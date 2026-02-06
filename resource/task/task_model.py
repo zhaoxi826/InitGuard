@@ -3,12 +3,13 @@ from sqlmodel import SQLModel, Field,JSON
 import datetime
 from typing import Dict, Any
 
-class BaseTask(SQLModel,Table=True):
+class BaseTask(SQLModel,table=True):
     __tablename__ = "tasks_list"
     task_id: int | None = Field(default=None, primary_key=True)
     task_name: str = Field(default="default_task")
     task_status: str = Field(default="Pending")
-    create_time: datetime.datetime = Field(default=datetime.datetime.now())
+    owner_id: int = Field(default=1,index=True)
+    create_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
     update_time: datetime.datetime | None = Field(default=None)
     database_id: int | None = Field(default=None)
     oss_id: int | None = Field(default=None)

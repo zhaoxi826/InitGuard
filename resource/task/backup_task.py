@@ -7,14 +7,6 @@ from typing import Dict, Any
 from loguru import logger
 
 class BackupTask(BaseTask):
-    task_id : int | None = Field(default=None,primary_key=True)
-    task_name : str = Field(default="backup_task")
-    task_status : str = Field(default="Pending")
-    create_time : datetime.datetime =Field(default_factory=datetime.datetime.now())
-    update_time : datetime.datetime | None =Field(default=None)
-    database_id: int | None = Field(default=None)
-    oss_id : int | None = Field(default=None)
-    logs: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
     __mapper_args__ = {
         "polymorphic_identity": "backup",
     }

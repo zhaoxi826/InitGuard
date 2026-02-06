@@ -1,3 +1,4 @@
-from postgres_instance import PostgresInstance
-from redis_instance import RedisInstance
+from .postgres_instance import PostgresInstance
+from .redis_instance import RedisInstance
 from .consumer import Consumer
+from .webapi import lifespan

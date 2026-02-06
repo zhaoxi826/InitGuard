@@ -1,6 +1,7 @@
 import tomllib
 from module import PostgresInstance,RedisInstance,Consumer
 from fastapi import FastAPI
+from module import lifespan
 
 def main():
     # 读取配置变量
@@ -11,12 +12,8 @@ def main():
     print("正在初始化中......请稍后")
     postgres_instance = PostgresInstance()  #实例化自动化系统数据库
     redis_instance = RedisInstance()  #实例化自动化系统redis
-    fastapi_postgres_instance = PostgresInstance() #实例化web程序数据库
-    fastapi_redis_instance = RedisInstance() #实例化web程序redis
     consumer = Consumer(redis_instance,postgres_instance) #实例化consumer模块
-    app = FastAPI()
-    app.state.pg_instance = fastapi_postgres_instance
-    app.state.redis_instance = fastapi_redis_instance
+    app = FastAPI(lifespan=lifespan)
 
 if __name__ == '__main__':
     main()

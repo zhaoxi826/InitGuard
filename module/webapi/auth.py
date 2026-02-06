@@ -1,10 +1,10 @@
 from fastapi import APIRouter,Depends,HTTPException,status
 from pydantic import BaseModel, EmailStr
-from module import PostgresInstance,RedisInstance
 from .dependence import dependence_pg,dependence_redis
+from module import PostgresInstance,RedisInstance
 from utils import SecurityHelper
 
-router = APIRouter(prefix="/auth", tags=["用户管理"])
+router = APIRouter(prefix="/api/auth", tags=["用户管理"])
 
 class UserRegister(BaseModel):
     username: str
@@ -31,3 +31,4 @@ def login(userlogin:UserLogin,postgres: PostgresInstance = Depends(dependence_pg
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="用户名或密码不正确"
         )
+

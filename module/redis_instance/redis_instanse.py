@@ -8,9 +8,10 @@ class RedisInstance:
         password = os.environ['REDIS_PASSWORD']
         self.r = redis.Redis(host=host, port=port,password=password, decode_responses=True)
 
+    def close_redis(self):
+        self.r.close()
+
     # 调度器方法
-    def push_task(self,task_id):
-        self.r.lpush("initguard:task:task_queue",task_id)
 
     def get_task(self):
         result = self.r.brpop("initguard:task:task_queue",timeout=0)
@@ -22,7 +23,10 @@ class RedisInstance:
         self.r.set(key, token, ex=3600)
 
     def get_token(self,user_id):
-        stored_token = self.r.get(f"kg:auth:user:{user_id}")
+        stored_token = self.r.get(f"initguard:auth:user:{user_id}")
         if not stored_token:
             return False
         return stored_token
+
+    def add_task(self,task_id):
+        self.r.lpush("initguard:task:task_queue",task_id)
