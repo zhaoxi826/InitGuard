@@ -14,6 +14,7 @@ def main():
     redis_instance = RedisInstance()  #实例化自动化系统redis
     consumer = Consumer(redis_instance,postgres_instance) #实例化consumer模块
     app = FastAPI(lifespan=lifespan)
+    
 
 if __name__ == '__main__':
     main()

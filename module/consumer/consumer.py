@@ -29,5 +29,3 @@ class Consumer:
             except Exception as e:
                 print(f"消费循环出错了: {e}")
                 time.sleep(5)
-
-

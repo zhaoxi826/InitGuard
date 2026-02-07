@@ -10,6 +10,7 @@ class TaskModel(BaseModel):
     task_name: str
     database_id: int | None
     oss_id: int | None
+    database_name: str
     task_type: str
 
 @router.post("/create")
@@ -18,7 +19,7 @@ def create_task(task: TaskModel,
                 redis: RedisInstance = Depends(dependence_redis),
                 user_id: int = Depends(get_current_user)):
     try:
-        task_id = postgres.add_task(task.task_name,task.database_id,task.oss_id,task.task_type,user_id)
+        task_id = postgres.add_task(task.task_name,task.database_id,task.oss_id,task.task_type,user_id,task.database_name)
         redis.add_task(task_id)
     except ValueError:
         raise HTTPException(

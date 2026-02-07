@@ -1,10 +1,18 @@
-from pydantic import BaseModel
+from ..oss import Oss,Minio,MinioMethod
+from ..database import Database,PostgresDatabase,PostgresMethod
 from .task_model import TaskProcess,BaseTask
-from resource.object_module import Oss,Database
-from sqlmodel import Field,JSON
-import datetime
-from typing import Dict, Any
 from loguru import logger
+import datetime
+
+
+def get_database_type(database,db_name):
+    database_dict = {PostgresDatabase():PostgresMethod(database,db_name)}
+    return database_dict[database]
+
+def get_oss_type(oss):
+    oss_dict = {Minio():MinioMethod(oss)}
+    return oss_dict[oss]
+
 
 class BackupTask(BaseTask):
     __mapper_args__ = {
@@ -14,15 +22,15 @@ class BackupTask(BaseTask):
 class BackupTaskProcess(TaskProcess):
     def __init__(self,task:BackupTask,database:Database,oss:Oss,target_path:str=None):
         self.task = task
-        self.database = database
-        self.oss = oss
+        self.database_method = get_database_type(database,self.task.database_name)
+        self.oss_method = get_oss_type(oss)
         self.target_path = target_path
 
     def work(self,task_logger):
         task_logger.info( "开始备份...")
-        db_process, stream, stderr = self.database.get_dump_stream()
+        db_process, stream, stderr = self.database_method.get_dump_stream()
         try:
-            self.oss.upload_stream(stream, self.target_path)
+            self.oss_method.upload_stream(stream, self.target_path)
             db_process.wait()
             if db_process.returncode == 0:
                 print("备份并上传成功！")
@@ -39,8 +47,7 @@ class BackupTaskProcess(TaskProcess):
             stream.close()
 
     def run(self):
-
-        log_file = f"logs/task_{self.task.task_id}.log"
+        log_file = f"data/logs/task/task_{self.task.task_id}.log"
         handler_id = logger.add(
             log_file,
             filter=lambda record: record["extra"].get("task_id") == self.task.task_id

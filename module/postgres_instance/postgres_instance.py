@@ -28,7 +28,7 @@ class PostgresInstance:
 
     def get_database(self,database_id):
         with Session(self.engine) as session:
-            database = session.get("databases_list",database_id)
+            database = session.get("database_list",database_id)
             return database
 
     def get_oss(self,oss_id):
@@ -64,7 +64,7 @@ class PostgresInstance:
                 session.add(super_user)
                 session.commit()
 
-    def add_task(self,task_name,database_id,oss_id,task_type,owner_id):
+    def add_task(self,task_name,database_id,oss_id,task_type,owner_id,database_name):
         with Session(self.engine) as session:
             task_dict = {
                 "backup_task":BackupTask
@@ -76,9 +76,17 @@ class PostgresInstance:
                 task_name=task_name,
                 database_id=database_id,
                 oss_id=oss_id,
-                owner_id=owner_id
+                owner_id=owner_id,
+                database_name=database_name
             )
             session.add(task)
             session.commit()
             session.refresh(task)
             return task.task_id
+
+    def add_instance(self,instance):
+        with Session(self.engine) as session:
+            session.add(instance)
+            session.commit()
+
+

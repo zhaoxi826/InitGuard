@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, Field,JSON
+from typing import Any,Dict
 import datetime
-from typing import Dict, Any
+
 
 class BaseTask(SQLModel,table=True):
     __tablename__ = "tasks_list"
@@ -12,6 +13,7 @@ class BaseTask(SQLModel,table=True):
     create_time: datetime.datetime = Field(default_factory=datetime.datetime.now)
     update_time: datetime.datetime | None = Field(default=None)
     database_id: int | None = Field(default=None)
+    database_name: str
     oss_id: int | None = Field(default=None)
     logs: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
     task_type: str = Field(sa_column_kwargs={"index": True})

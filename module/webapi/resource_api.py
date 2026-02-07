@@ -1,0 +1,66 @@
+from typing import Union,Literal
+from fastapi import APIRouter,Depends,HTTPException,status
+from module import PostgresInstance
+from dependence import dependence_pg
+from pydantic import BaseModel,Field
+from utils.security import get_current_user
+from resource import Minio,PostgresDatabase
+
+router = APIRouter(prefix="/api/resource", tags=["资源管理"])
+
+
+class DatabaseValue(BaseModel):
+    type: Literal["database"]
+    database: Literal["postgres"]
+    host: str
+    port: int = 5432
+    username: str
+    password: str
+
+class OssValue(BaseModel):
+    type: Literal["oss"]
+    oss_type: Literal["minio"]
+    endpoint: str
+    access_key: str
+    secret_key: str
+    bucket: str
+
+class ResourceModel(BaseModel):
+    resource_name: str
+    resource_value: Union[DatabaseValue, OssValue] = Field(discriminator="type")
+
+@router.post("/create")
+def create_resource(resource: ResourceModel,
+                    postgres_instance: PostgresInstance=Depends(dependence_pg),
+                    user_id:int = Depends(get_current_user)):
+    val = resource.resource_value
+    instance = None
+    if isinstance(val, DatabaseValue):
+        match val.database_type:
+            case "postgres":
+                instance = PostgresDatabase(database_name=resource.resource_name,
+                                            host=val.host,
+                                            port=val.port,
+                                            username=val.username,
+                                            password= val.password,
+                                            owner_id=user_id)
+    elif isinstance(val, OssValue):
+        match val.oss_type:
+            case "minio":
+                instance = Minio(oss_name=resource.resource_name,
+                                 endpoint=val.endpoint,
+                                 access_key=val.access_key,
+                                 secret_key=val.secret_key,
+                                 bucket=val.bucket,
+                                 owner_id=user_id)
+    if instance is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="不支持的资源细分类型"
+        )
+    try:
+        postgres_instance.add_instance(instance)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"数据库写入失败: {str(e)}")
+    postgres_instance.add_instance(instance)
+    return {"status": "success", "detail":"资源创建成功"}
