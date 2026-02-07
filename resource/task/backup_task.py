@@ -5,13 +5,15 @@ from loguru import logger
 import datetime
 
 
-def get_database_type(database,db_name):
-    database_dict = {PostgresDatabase():PostgresMethod(database,db_name)}
-    return database_dict[database]
+def get_database_type(database, db_name):
+    if isinstance(database, PostgresDatabase):
+        return PostgresMethod(database, db_name)
+    raise ValueError(f"不支持的数据库类型实例: {type(database)}")
 
 def get_oss_type(oss):
-    oss_dict = {Minio():MinioMethod(oss)}
-    return oss_dict[oss]
+    if isinstance(oss, Minio):
+        return MinioMethod(oss)
+    raise ValueError(f"不支持的对象存储类型实例: {type(oss)}")
 
 
 class BackupTask(BaseTask):

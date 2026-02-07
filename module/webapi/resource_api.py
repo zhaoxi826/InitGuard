@@ -1,7 +1,7 @@
 from typing import Union,Literal
 from fastapi import APIRouter,Depends,HTTPException,status
 from module import PostgresInstance
-from dependence import dependence_pg
+from .dependence import dependence_pg
 from pydantic import BaseModel,Field
 from utils.security import get_current_user
 from resource import Minio,PostgresDatabase
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/api/resource", tags=["资源管理"])
 
 class DatabaseValue(BaseModel):
     type: Literal["database"]
-    database: Literal["postgres"]
+    database_type: Literal["postgres"]
     host: str
     port: int = 5432
     username: str
@@ -61,6 +61,7 @@ def create_resource(resource: ResourceModel,
     try:
         postgres_instance.add_instance(instance)
     except Exception as e:
+        import traceback
+        print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"数据库写入失败: {str(e)}")
-    postgres_instance.add_instance(instance)
     return {"status": "success", "detail":"资源创建成功"}

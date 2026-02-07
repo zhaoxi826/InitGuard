@@ -1,6 +1,7 @@
 from sqlmodel import create_engine, SQLModel,Session,select
 from utils import PasswordHelper
-from resource import User,BackupTask
+from resource import BackupTask
+from resource import User,Database,Oss,BaseTask
 import os
 
 class PostgresInstance:
@@ -23,17 +24,17 @@ class PostgresInstance:
     # 调度器方法
     def get_task(self,task_id):
         with Session(self.engine) as session:
-            task = session.get("tasks_list",task_id)
+            task = session.get(BaseTask,task_id)
             return task
 
     def get_database(self,database_id):
         with Session(self.engine) as session:
-            database = session.get("database_list",database_id)
+            database = session.get(Database,database_id)
             return database
 
     def get_oss(self,oss_id):
         with Session(self.engine) as session:
-            oss = session.get("oss_list",oss_id)
+            oss = session.get(Oss,oss_id)
             return oss
 
     # fastapi方法
@@ -46,7 +47,7 @@ class PostgresInstance:
 
     def login_user(self,user_name,user_password):
         with Session(self.engine) as session:
-            statement = select(User).where(User.username == user_name)
+            statement = select(User).where(User.user_name == user_name)
             user = session.exec(statement).first()
             if user and PasswordHelper.verify_password(user_password,user.user_password):
                 return user.user_id
@@ -60,7 +61,7 @@ class PostgresInstance:
                 user_email = os.environ.get("SUPERUSER_EMAIL")
                 user_password = os.environ.get("SUPERUSER_PASSWORD")
                 hashed_pwd = PasswordHelper.hash_password(user_password)
-                super_user = User(user_id=1, username=user_name,user_email=user_email,user_password=hashed_pwd,user_authority="superuser")
+                super_user = User(user_id=1, user_name=user_name,user_email=user_email,user_password=hashed_pwd,user_authority="superuser")
                 session.add(super_user)
                 session.commit()
 

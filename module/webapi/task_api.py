@@ -1,6 +1,6 @@
 from fastapi import APIRouter,Depends,HTTPException,status
 from module import PostgresInstance,RedisInstance
-from dependence import dependence_pg,dependence_redis
+from .dependence import dependence_pg,dependence_redis
 from pydantic import BaseModel
 from utils.security import get_current_user
 

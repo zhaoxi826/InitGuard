@@ -4,7 +4,7 @@ import subprocess
 
 class PostgresDatabase(Database):
     __mapper_args__ = {
-        "polymorphic_identity": "Postgres",
+        "polymorphic_identity": "postgres",
     }
 
 class PostgresMethod(DatabaseMethod):

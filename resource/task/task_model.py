@@ -1,6 +1,5 @@
 from abc import ABC, abstractmethod
-from sqlmodel import SQLModel, Field,JSON
-from typing import Any,Dict
+from sqlmodel import SQLModel, Field
 import datetime
 
 
@@ -15,7 +14,6 @@ class BaseTask(SQLModel,table=True):
     database_id: int | None = Field(default=None)
     database_name: str
     oss_id: int | None = Field(default=None)
-    logs: Dict[str, Any] = Field(default_factory=dict, sa_type=JSON)
     task_type: str = Field(sa_column_kwargs={"index": True})
     __mapper_args__ = {
         "polymorphic_on": "task_type",

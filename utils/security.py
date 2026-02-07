@@ -1,7 +1,6 @@
 import os
 import jwt
 import datetime
-from module import RedisInstance
 from fastapi import Request,HTTPException,Depends
 from fastapi.security import HTTPBearer
 from fastapi.security import HTTPAuthorizationCredentials
@@ -30,13 +29,13 @@ class SecurityHelper:
         return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
     @staticmethod
-    def login_and_save_token(user_id: int, redis: RedisInstance):
+    def login_and_save_token(user_id: int, redis):
         token = SecurityHelper.create_access_token({"user_id": user_id})
         redis.login_token(token, user_id)
         return token
 
     @staticmethod
-    def verify_with_redis(user_id: int, incoming_token: str, redis: RedisInstance):
+    def verify_with_redis(user_id: int, incoming_token: str, redis):
         stored_token = redis.get_token(user_id)
         if not stored_token or stored_token != incoming_token:
             return False
@@ -59,6 +58,7 @@ async def get_current_user(
         raise HTTPException(status_code=401, detail="Token 无效")
     except Exception:
         raise HTTPException(status_code=401, detail="鉴权失败")
-    if not SecurityHelper.verify_with_redis(user_id, token, request.app.state.redis):
+    redis = request.app.state.redis_instance
+    if not SecurityHelper.verify_with_redis(user_id, token,redis):
         raise HTTPException(status_code=401, detail="登录已失效")
     return user_id
