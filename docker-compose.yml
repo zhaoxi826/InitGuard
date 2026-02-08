@@ -1,0 +1,69 @@
+services:
+  initguard-app:
+    build: .
+    container_name: initguard-service
+    restart: always
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=initguard_db_pass
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=initguard
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=initguard_redis_pass
+      - SECRET_KEY=your_custom_secret_key_here
+      - SUPERUSER_NAME=zhaoxi
+      - SUPERUSER_EMAIL=zhaoxi@example.com
+      - SUPERUSER_PASSWORD=admin_password
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_started
+    volumes:
+      - ./data:/app/data
+
+  db:
+    image: postgres:15-alpine
+    container_name: initguard-db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=initguard_db_pass
+      - POSTGRES_DB=initguard
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d initguard"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: initguard-redis
+    command: redis-server --requirepass initguard_redis_pass
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "initguard_redis_pass", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # --- 新增 MinIO 服务用于测试 ---
+  minio:
+    image: minio/minio
+    container_name: initguard-minio
+    ports:
+      - "9000:9000"       # API 端口
+      - "9001:9001"       # 控制台端口
+    environment:
+      - MINIO_ROOT_USER=minioadmin
+      - MINIO_ROOT_PASSWORD=minioadmin
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 5s
+      timeout: 5s
+      retries: 5

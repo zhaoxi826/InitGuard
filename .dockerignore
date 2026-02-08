@@ -1,19 +1,15 @@
-# 忽略 Git 历史
-.git
+docs/
+.git/
 
-# 忽略本地虚拟环境 (镜像内部会自己装)
-.venv
+.venv/
 venv
 
-# 忽略本地运行产生的日志
-logs/
-*.json
-*.log
-
+data/
+README.md
 # 忽略编辑器配置
-.vscode
 .idea
 
 # 忽略 Dockerfile 自己
 Dockerfile
 docker-compose.yml
+.gitignore
