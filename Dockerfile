@@ -8,7 +8,7 @@ WORKDIR /app
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 ENV UV_SYSTEM_PYTHON=1
 
-# 复制依赖文件 (假设你用了 pyproject.toml)
+# 复制依赖文件
 COPY pyproject.toml .
 RUN uv pip install .
 
@@ -17,6 +17,11 @@ COPY . .
 
 # 创建日志目录 (防止代码里没写创建逻辑)
 RUN mkdir -p data/logs/task
+
+#安装pg_client
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
 
 # 暴露 FastAPI 默认端口
 EXPOSE 8000

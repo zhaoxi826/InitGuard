@@ -1,5 +1,5 @@
 from module import PostgresInstance,RedisInstance
-from resource import BackupTask,BackupTaskProcess
+from resource.task.backup_task import BackupTaskProcess
 import datetime
 import time
 
@@ -12,8 +12,8 @@ class Consumer:
         task_id = self.redis_instance.get_task()
         if task_id:
             task_instance = self.postgres_instance.get_task(task_id)
-            match task_instance:
-                case BackupTask():
+            match task_instance.task_type:
+                case "backup_task":
                     database_instance = self.postgres_instance.get_database(task_instance.database_id)
                     oss_instance = self.postgres_instance.get_oss(task_instance.oss_id)
                     target_path = "/backup/{}/{}.sql".format(datetime.datetime.now().strftime("%Y%m%d%H%M%S"),task_id)

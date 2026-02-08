@@ -1,31 +1,15 @@
-from ..oss import Oss,Minio,MinioMethod
-from ..database import Database,PostgresDatabase,PostgresMethod
+from resource.oss.oss import Oss
+from resource.database.database import Database
+from utils import GetObjectMethod
 from .task_model import TaskProcess,BaseTask
 from loguru import logger
 import datetime
 
-
-def get_database_type(database, db_name):
-    if isinstance(database, PostgresDatabase):
-        return PostgresMethod(database, db_name)
-    raise ValueError(f"不支持的数据库类型实例: {type(database)}")
-
-def get_oss_type(oss):
-    if isinstance(oss, Minio):
-        return MinioMethod(oss)
-    raise ValueError(f"不支持的对象存储类型实例: {type(oss)}")
-
-
-class BackupTask(BaseTask):
-    __mapper_args__ = {
-        "polymorphic_identity": "backup",
-    }
-
 class BackupTaskProcess(TaskProcess):
-    def __init__(self,task:BackupTask,database:Database,oss:Oss,target_path:str=None):
+    def __init__(self,task:BaseTask,database:Database,oss:Oss,target_path:str=None):
         self.task = task
-        self.database_method = get_database_type(database,self.task.database_name)
-        self.oss_method = get_oss_type(oss)
+        self.database_method = GetObjectMethod.get_database_type(database,self.task.database_name)
+        self.oss_method = GetObjectMethod.get_oss_type(oss)
         self.target_path = target_path
 
     def work(self,task_logger):

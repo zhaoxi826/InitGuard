@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, Field
+from typing import Literal
 
 
 class Oss(SQLModel,table=True):
@@ -11,10 +12,7 @@ class Oss(SQLModel,table=True):
     bucket: str
     access_key: str
     secret_key: str
-    oss_type: str = Field(default="minio")
-    __mapper_args__ = {
-        "polymorphic_on": "oss_type",
-    }
+    oss_type: str
 
 class OssMethod(ABC):
     @abstractmethod

@@ -14,5 +14,6 @@ async def lifespan(app: FastAPI):
     # --- 【关闭】 ---
     print("web组件 正在优雅地关闭...")
     postgres_instance.close_engine()
+    redis_instance.close_redis()
 
 

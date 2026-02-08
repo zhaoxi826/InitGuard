@@ -1,3 +1,4 @@
+from resource import User,Database,Oss,BaseTask
 import uvicorn
 import threading
 import tomllib
@@ -8,7 +9,6 @@ from module.webapi.auth_api import router as auth_router
 from module.webapi.resource_api import router as resource_router
 from module.webapi.task_api import router as task_router
 from module.webapi.lifespan import lifespan
-from resource import User,Database,Oss,BaseTask
 
 def run_consumer_worker():
     print(">>> 启动后台任务消费者线程...")

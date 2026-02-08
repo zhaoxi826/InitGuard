@@ -1,18 +1,16 @@
-import os
 from .oss import Oss,OssMethod
 import boto3
 
-class Minio(Oss):
-    __mapper_args__ = {
-        "polymorphic_identity": "minio",
-    }
 
 class MinioMethod(OssMethod):
-    def __init__(self,minio:Minio):
+    def __init__(self,minio:Oss):
         self.bucket = minio.bucket
+        endpoint = minio.endpoint
+        if not endpoint.startswith("http"):
+            endpoint = f"http://{endpoint}"
         self.s3 = boto3.client(
             's3',
-            endpoint_url=minio.endpoint,
+            endpoint_url=endpoint,
             aws_access_key_id=minio.access_key,
             aws_secret_access_key=minio.secret_key
         )

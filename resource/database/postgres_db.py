@@ -2,13 +2,9 @@ from .database import Database, DatabaseMethod
 import os
 import subprocess
 
-class PostgresDatabase(Database):
-    __mapper_args__ = {
-        "polymorphic_identity": "postgres",
-    }
 
 class PostgresMethod(DatabaseMethod):
-    def __init__(self,postgres_db:PostgresDatabase,db_name):
+    def __init__(self,postgres_db:Database,db_name):
         self.database = postgres_db
         self.db_name = db_name
     def get_dump_stream(self):

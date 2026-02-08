@@ -1,5 +1,6 @@
 from sqlmodel import SQLModel,Field
 from abc import ABC, abstractmethod
+from typing import Literal
 
 class Database(SQLModel, table=True):
     __tablename__ = "database_list"
@@ -11,9 +12,6 @@ class Database(SQLModel, table=True):
     username: str
     password: str
     database_type: str
-    __mapper_args__ = {
-        "polymorphic_on": "database_type",
-    }
 
 class DatabaseMethod(ABC):
     @abstractmethod

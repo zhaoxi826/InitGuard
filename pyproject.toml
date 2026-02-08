@@ -1,7 +1,7 @@
 [project]
-name = "kubeguard"
-version = "0.1.0"
-description = "Add your description here"
+name = "InitGuard"
+version = "0.2.0"
+description = "一个手动创建备份任务并且自动化完成的程序，采用fastapi技术栈"
 requires-python = ">=3.12"
 dependencies = [
     "bcrypt==3.1.7",

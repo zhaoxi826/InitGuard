@@ -1,10 +1,11 @@
 from abc import ABC, abstractmethod
 from sqlmodel import SQLModel, Field
+from typing import Literal
 import datetime
 
 
 class BaseTask(SQLModel,table=True):
-    __tablename__ = "tasks_list"
+    __tablename__ = "task_list"
     task_id: int | None = Field(default=None, primary_key=True)
     task_name: str = Field(default="default_task")
     task_status: str = Field(default="Pending")
@@ -14,10 +15,7 @@ class BaseTask(SQLModel,table=True):
     database_id: int | None = Field(default=None)
     database_name: str
     oss_id: int | None = Field(default=None)
-    task_type: str = Field(sa_column_kwargs={"index": True})
-    __mapper_args__ = {
-        "polymorphic_on": "task_type",
-    }
+    task_type: str | None = Field(default=None)
 
 class TaskProcess(ABC):
     @abstractmethod

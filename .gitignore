@@ -1,18 +1,7 @@
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-
 .venv/
 venv/
-ENV/
-
-logs/
-*.json
-*.log
-backup_temp/
-
-.env
-.env.*
 
 .idea/
+.idea
+
+

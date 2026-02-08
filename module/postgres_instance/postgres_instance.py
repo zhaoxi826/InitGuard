@@ -1,7 +1,6 @@
 from sqlmodel import create_engine, SQLModel,Session,select
-from utils import PasswordHelper
-from resource import BackupTask
 from resource import User,Database,Oss,BaseTask
+from utils import PasswordHelper
 import os
 
 class PostgresInstance:
@@ -61,24 +60,22 @@ class PostgresInstance:
                 user_email = os.environ.get("SUPERUSER_EMAIL")
                 user_password = os.environ.get("SUPERUSER_PASSWORD")
                 hashed_pwd = PasswordHelper.hash_password(user_password)
-                super_user = User(user_id=1, user_name=user_name,user_email=user_email,user_password=hashed_pwd,user_authority="superuser")
+                super_user = User(user_name=user_name,user_email=user_email,user_password=hashed_pwd,user_authority="superuser")
                 session.add(super_user)
                 session.commit()
 
     def add_task(self,task_name,database_id,oss_id,task_type,owner_id,database_name):
         with Session(self.engine) as session:
-            task_dict = {
-                "backup_task":BackupTask
-            }
-            task_class = task_dict.get(task_type)
-            if not task_class:
+            task_set={"backup_task"}
+            if task_type not in task_set:
                 raise ValueError(f"不支持的任务类型: {task_type}")
-            task = task_class(
+            task = BaseTask(
                 task_name=task_name,
                 database_id=database_id,
                 oss_id=oss_id,
                 owner_id=owner_id,
-                database_name=database_name
+                database_name=database_name,
+                task_type=task_type
             )
             session.add(task)
             session.commit()

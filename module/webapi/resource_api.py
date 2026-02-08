@@ -4,7 +4,7 @@ from module import PostgresInstance
 from .dependence import dependence_pg
 from pydantic import BaseModel,Field
 from utils.security import get_current_user
-from resource import Minio,PostgresDatabase
+from resource import Oss,Database
 
 router = APIRouter(prefix="/api/resource", tags=["资源管理"])
 
@@ -38,21 +38,25 @@ def create_resource(resource: ResourceModel,
     if isinstance(val, DatabaseValue):
         match val.database_type:
             case "postgres":
-                instance = PostgresDatabase(database_name=resource.resource_name,
+                instance = Database(database_name=resource.resource_name,
                                             host=val.host,
                                             port=val.port,
                                             username=val.username,
                                             password= val.password,
-                                            owner_id=user_id)
+                                            owner_id=user_id,
+                                            database_type="postgres"
+                                            )
     elif isinstance(val, OssValue):
         match val.oss_type:
             case "minio":
-                instance = Minio(oss_name=resource.resource_name,
+                instance = Oss(oss_name=resource.resource_name,
                                  endpoint=val.endpoint,
                                  access_key=val.access_key,
                                  secret_key=val.secret_key,
                                  bucket=val.bucket,
-                                 owner_id=user_id)
+                                 owner_id=user_id,
+                                 oss_type="minio"
+                                 )
     if instance is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
