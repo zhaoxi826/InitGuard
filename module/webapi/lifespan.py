@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
         is_production = False
     postgres_instance = PostgresApi(is_production)
     redis_instance = RedisApi()
-    app.state.pg_engine = postgres_instance
+    app.state.pg_instance = postgres_instance
     app.state.redis_instance = redis_instance
     yield
     # --- 【关闭】 ---

@@ -11,7 +11,7 @@ from module.webapi.lifespan import lifespan
 import multiprocessing
 
 def run_api():
-    app = FastAPI(lifespan=lifespan())
+    app = FastAPI(lifespan=lifespan)
     app.include_router(auth_router)
     app.include_router(resource_router)
     app.include_router(task_router)

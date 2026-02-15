@@ -1,0 +1,8 @@
+2026-02-15 11:41:31.094 | INFO     | resource.task.backup_task:run:44 - --- 任务 1 开始执行 ---
+2026-02-15 11:41:31.094 | INFO     | resource.task.backup_task:work:20 - 开始备份...
+2026-02-15 11:41:31.094 | INFO     | resource.task.backup_task:work:31 - 上传成功
+2026-02-15 11:41:31.095 | INFO     | resource.task.backup_task:run:56 - --- 任务 1 结束 ---
+2026-02-15 11:49:24.817 | INFO     | resource.task.backup_task:run:44 - --- 任务 1 开始执行 ---
+2026-02-15 11:49:24.818 | INFO     | resource.task.backup_task:work:20 - 开始备份...
+2026-02-15 11:49:24.818 | INFO     | resource.task.backup_task:work:31 - 上传成功
+2026-02-15 11:49:24.818 | INFO     | resource.task.backup_task:run:56 - --- 任务 1 结束 ---
