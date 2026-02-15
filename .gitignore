@@ -5,3 +5,10 @@ venv/
 .idea
 
 
+
+frontend/node_modules/
+frontend/dist/
+__pycache__/
+.pytest_cache/
+.coverage
+*.log
