@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState } from 'react';
+import { jwtDecode } from 'jwt-decode';
 import api from '../api';
 
 const AuthContext = createContext();
@@ -6,23 +7,37 @@ const AuthContext = createContext();
 export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(localStorage.getItem('token'));
-
-  useEffect(() => {
-    if (token) {
-      // Decode token to get user info if needed
+  const [token, setToken] = useState(() => {
+    const t = localStorage.getItem('token');
+    if (t) {
       try {
-        const payload = JSON.parse(atob(token.split('.')[1]));
-        setUser({ user_id: payload.user_id });
-      } catch (e) {
-        console.error("Invalid token", e);
-        logout();
+        jwtDecode(t);
+        return t;
+      } catch {
+        localStorage.removeItem('token');
+        return null;
       }
-    } else {
-        setUser(null);
     }
-  }, [token]);
+    return null;
+  });
+
+  const [user, setUser] = useState(() => {
+    if (token) {
+      try {
+        const payload = jwtDecode(token);
+        return { user_id: payload.user_id };
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  });
+
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
 
   const login = async (username, password) => {
     try {
@@ -30,6 +45,13 @@ export const AuthProvider = ({ children }) => {
       const newToken = response.data.token;
       localStorage.setItem('token', newToken);
       setToken(newToken);
+      try {
+        const payload = jwtDecode(newToken);
+        setUser({ user_id: payload.user_id });
+      } catch (e) {
+        console.error("Invalid token received", e);
+        logout();
+      }
       return true;
     } catch (error) {
       console.error("Login failed", error);
@@ -45,12 +67,6 @@ export const AuthProvider = ({ children }) => {
         console.error("Registration failed", error);
         throw error;
     }
-  };
-
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
   };
 
   return (
