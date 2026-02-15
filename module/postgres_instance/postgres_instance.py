@@ -1,90 +1,46 @@
-from sqlmodel import create_engine, SQLModel,Session,select
-from resource import User,Database,Oss,BaseTask
-from utils import PasswordHelper
 import os
+from resource import User,BaseTask,Database,Oss
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy.orm import sessionmaker
+from sqlmodel import SQLModel
+
+from utils import PasswordHelper
+
 
 class PostgresInstance:
-    def __init__(self):
+    def __init__(self,is_production):
         user = os.environ["POSTGRES_USER"]
         password = os.environ["POSTGRES_PASSWORD"]
         host = os.environ["POSTGRES_HOST"]
         port = os.environ["POSTGRES_PORT"]
         database = os.environ["POSTGRES_DB"]
-        self.url = "postgresql://{}:{}@{}:{}/{}".format(user, password, host, port, database)
-        self.engine = create_engine(self.url,echo=True)
+        self.url = f"postgresql+asyncpg://{user}:{password}@{host}:{port}/{database}"
+        self.engine = create_async_engine(
+            self.url,
+            echo=not is_production,
+            pool_pre_ping=True
+        )
+        self.async_session_maker = sessionmaker(self.engine, class_=AsyncSession, expire_on_commit=False)
 
-    # 数据库核心方法
-    def init(self):
-        SQLModel.metadata.create_all(self.engine)
+    # 4. 数据库初始化方法改为异步
+    async def init(self):
+        async with self.engine.begin() as conn:
+            # SQLModel 的元数据同步操作需要通过 run_sync 运行
+            await conn.run_sync(SQLModel.metadata.create_all)
 
-    def close_engine(self):
-        self.engine.dispose()
+    def get_engine(self):
+        return self.engine
 
-    # 调度器方法
-    def get_task(self,task_id):
-        with Session(self.engine) as session:
-            task = session.get(BaseTask,task_id)
-            return task
+    # 5. 关闭方法改为异步
+    async def close_engine(self):
+        await self.engine.dispose()
 
-    def get_database(self,database_id):
-        with Session(self.engine) as session:
-            database = session.get(Database,database_id)
-            return database
-
-    def get_oss(self,oss_id):
-        with Session(self.engine) as session:
-            oss = session.get(Oss,oss_id)
-            return oss
-
-    # fastapi方法
-    def add_user(self,user_name,user_password,user_email):
-        with Session(self.engine) as session:
-            hashed_pwd = PasswordHelper.hash_password(user_password)
-            user = User(user_name=user_name,user_password=hashed_pwd,user_email=user_email)
-            session.add(user)
-            session.commit()
-
-    def login_user(self,user_name,user_password):
-        with Session(self.engine) as session:
-            statement = select(User).where(User.user_name == user_name)
-            user = session.exec(statement).first()
-            if user and PasswordHelper.verify_password(user_password,user.user_password):
-                return user.user_id
-            return False
-
-    def init_superuser(self):
-        with Session(self.engine) as session:
-            super_user = session.get(User, 1)
-            if not super_user:
-                user_name = os.environ.get("SUPERUSER_NAME")
-                user_email = os.environ.get("SUPERUSER_EMAIL")
-                user_password = os.environ.get("SUPERUSER_PASSWORD")
-                hashed_pwd = PasswordHelper.hash_password(user_password)
-                super_user = User(user_name=user_name,user_email=user_email,user_password=hashed_pwd,user_authority="superuser")
-                session.add(super_user)
-                session.commit()
-
-    def add_task(self,task_name,database_id,oss_id,task_type,owner_id,database_name):
-        with Session(self.engine) as session:
-            task_set={"backup_task"}
-            if task_type not in task_set:
-                raise ValueError(f"不支持的任务类型: {task_type}")
-            task = BaseTask(
-                task_name=task_name,
-                database_id=database_id,
-                oss_id=oss_id,
-                owner_id=owner_id,
-                database_name=database_name,
-                task_type=task_type
-            )
-            session.add(task)
-            session.commit()
-            session.refresh(task)
-            return task.task_id
-
-    def add_instance(self,instance):
-        with Session(self.engine) as session:
-            session.add(instance)
-            session.commit()
-
-
+    async def create_superuser(self):
+        async with self.async_session_maker() as session:
+            superuser = await session.get(User,1)
+            if not superuser:
+                hashed_pwd = PasswordHelper.hash_password(os.environ.get("SUPERUSER_PASSWORD"))
+                superuser = User(user_id=1, user_name=os.environ.get("SUPERUSER_NAME"),user_email=os.environ.get("SUPERUSER_EMAIL"),user_password=hashed_pwd,user_authority="superuser")
+                session.add(superuser)
+                await session.commit()

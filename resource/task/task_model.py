@@ -1,7 +1,7 @@
-from abc import ABC, abstractmethod
-from sqlmodel import SQLModel, Field
-from typing import Literal
 import datetime
+from abc import ABC, abstractmethod
+
+from sqlmodel import SQLModel, Field
 
 
 class BaseTask(SQLModel,table=True):

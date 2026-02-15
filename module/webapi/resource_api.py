@@ -30,7 +30,7 @@ class ResourceModel(BaseModel):
     resource_value: Union[DatabaseValue, OssValue] = Field(discriminator="type")
 
 @router.post("/create")
-def create_resource(resource: ResourceModel,
+async def create_resource(resource: ResourceModel,
                     postgres_instance: PostgresInstance=Depends(dependence_pg),
                     user_id:int = Depends(get_current_user)):
     val = resource.resource_value
@@ -63,7 +63,7 @@ def create_resource(resource: ResourceModel,
             detail="不支持的资源细分类型"
         )
     try:
-        postgres_instance.add_instance(instance)
+        await postgres_instance.add_instance(instance)
     except Exception as e:
         import traceback
         print(traceback.format_exc())

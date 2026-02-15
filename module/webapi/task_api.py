@@ -14,16 +14,46 @@ class TaskModel(BaseModel):
     task_type: str
 
 @router.post("/create")
-def create_task(task: TaskModel,
+async def create_task(task: TaskModel,
                 postgres: PostgresInstance = Depends(dependence_pg),
                 redis: RedisInstance = Depends(dependence_redis),
                 user_id: int = Depends(get_current_user)):
     try:
-        task_id = postgres.add_task(task.task_name,task.database_id,task.oss_id,task.task_type,user_id,task.database_name)
-        redis.add_task(task_id)
+        task_id = await postgres.add_task(task.task_name,task.database_id,task.oss_id,task.task_type,user_id,task.database_name)
+        await redis.add_task(task_id)
     except ValueError:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="任务类型不存在"
         )
     return {"status": "success", "detail":"任务创建成功"}
+
+class TaskFilterModel(BaseModel):
+    database_id: int | None
+    status: str | None
+    start_time: str | None
+    task_type: str | None
+
+@router.get("/list")
+def get_tasks(
+        filter: TaskFilterModel,
+        user_id: int = Depends(get_current_user)
+        ):
+    if filter.database_id:
+        pass
+
+
+@router.get("/{task_id}")
+async def get_task(task_id: int,user_id: int = Depends(get_current_user),postgres : PostgresInstance = Depends(dependence_pg)):
+    task = await postgres.get_task(task_id)
+    if task is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="任务不存在"
+        )
+    if task.owner_id != user_id and user_id != 1:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="权限不足"
+        )
+    return task

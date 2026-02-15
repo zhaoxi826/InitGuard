@@ -1,19 +1,28 @@
-from module import PostgresInstance,RedisInstance
+import tomllib
+
+from module.postgres_instance.postgres_api import PostgresApi
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
+
+from module.redis_instance.redis_api import RedisApi
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     print("InitGuard 正在启动...")
-    postgres_instance = PostgresInstance()
-    redis_instance = RedisInstance()
-    app.state.pg_instance = postgres_instance
+    try:
+        with open('pyproject.toml', 'rb') as f:
+            config = tomllib.load(f)
+            is_production = ("true" == config.get("project", {}).get("is_production", "false"))
+    except FileNotFoundError:
+        version = "Unknown"
+    postgres_instance = PostgresApi(is_production)
+    redis_instance = RedisApi()
+    app.state.pg_engine = postgres_instance
     app.state.redis_instance = redis_instance
-    postgres_instance.init_superuser()
     yield
     # --- 【关闭】 ---
     print("web组件 正在优雅地关闭...")
-    postgres_instance.close_engine()
-    redis_instance.close_redis()
+
 
 

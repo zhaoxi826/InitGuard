@@ -16,15 +16,15 @@ class UserLogin(BaseModel):
     password: str
 
 @router.post("/register")
-def register(user_register: UserRegister,postgres: PostgresInstance = Depends(dependence_pg)):
-    postgres.add_user(user_register.username, user_register.password, user_register.email)
+async def register_user(user_register: UserRegister,postgres: PostgresInstance = Depends(dependence_pg)):
+    await postgres.add_user(user_register.username, user_register.password, user_register.email)
     return {"message": "注册成功"}
 
 @router.post("/login")
-def login(userlogin:UserLogin,postgres: PostgresInstance = Depends(dependence_pg),redis: RedisInstance = Depends(dependence_redis)):
-    result =  postgres.login_user(userlogin.username, userlogin.password)
+async def login_user(user_login:UserLogin,postgres: PostgresInstance = Depends(dependence_pg),redis: RedisInstance = Depends(dependence_redis)):
+    result =  await postgres.login_user(user_login.username, user_login.password)
     if result:
-        token = SecurityHelper.login_and_save_token(result,redis)
+        token = await SecurityHelper.login_and_save_token(result,redis)
         return {"token":f"{token}"}
     else:
         raise HTTPException(
