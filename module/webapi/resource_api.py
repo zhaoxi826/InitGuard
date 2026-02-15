@@ -69,3 +69,12 @@ async def create_resource(resource: ResourceModel,
         print(traceback.format_exc())
         raise HTTPException(status_code=500, detail=f"数据库写入失败: {str(e)}")
     return {"status": "success", "detail":"资源创建成功"}
+
+@router.get("/list")
+async def list_resources(
+        postgres_instance: PostgresInstance = Depends(dependence_pg),
+        user_id: int = Depends(get_current_user)
+        ):
+    databases = await postgres_instance.get_databases(user_id)
+    oss = await postgres_instance.get_oss(user_id)
+    return {"databases": databases, "oss": oss}

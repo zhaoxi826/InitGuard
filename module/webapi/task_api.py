@@ -29,18 +29,25 @@ async def create_task(task: TaskModel,
     return {"status": "success", "detail":"任务创建成功"}
 
 class TaskFilterModel(BaseModel):
-    database_id: int | None
-    status: str | None
-    start_time: str | None
-    task_type: str | None
+    database_id: int | None = None
+    status: str | None = None
+    start_time: str | None = None
+    task_type: str | None = None
 
 @router.get("/list")
-def get_tasks(
-        filter: TaskFilterModel,
-        user_id: int = Depends(get_current_user)
+async def get_tasks(
+        filter: TaskFilterModel = Depends(),
+        user_id: int = Depends(get_current_user),
+        postgres: PostgresInstance = Depends(dependence_pg)
         ):
-    if filter.database_id:
-        pass
+    tasks = await postgres.get_tasks(
+        user_id=user_id,
+        database_id=filter.database_id,
+        status=filter.status,
+        start_time=filter.start_time,
+        task_type=filter.task_type
+    )
+    return tasks
 
 
 @router.get("/{task_id}")
