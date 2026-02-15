@@ -1,50 +1,50 @@
-# Frontend Design Report
+# 前端设计报告
 
-## Overview
-The frontend for InitGuard is designed with a focus on **minimalism, clarity, and elegance**. It provides a distraction-free interface for managing database backup tasks. The application supports both Light and Dark modes to accommodate user preferences and working environments.
+## 概述
+InitGuard 的前端设计专注于**简约、清晰和优雅**。它为管理数据库备份任务提供了一个无干扰的界面。该应用程序支持白天和夜间模式，以适应用户的偏好和工作环境。
 
-## Color Scheme
+## 配色方案
 
-The color palette is derived from Tailwind CSS's default palette, chosen for its professional and clean aesthetic.
+调色板源自 Tailwind CSS 的默认调色板，因其专业和干净的美感而被选中。
 
-### Light Mode (Day)
-*   **Background**: `gray-50` (#f9fafb) - A soft, off-white background to reduce glare.
-*   **Surface (Cards/Modals)**: `white` (#ffffff) - Clean white for content containers.
-*   **Text (Primary)**: `gray-900` (#111827) - Almost black for high readability.
-*   **Text (Secondary)**: `gray-500` (#6b7280) - Muted gray for labels and secondary information.
-*   **Accent/Primary Action**: `blue-600` (#2563eb) - A strong, trustworthy blue for primary buttons and active links.
-*   **Borders**: `gray-200` (#e5e7eb) - Subtle borders for separation.
+### 白天模式 (Day)
+*   **背景**: `gray-50` (#f9fafb) - 柔和的灰白色背景，减少眩光。
+*   **表面 (卡片/模态框)**: `white` (#ffffff) - 干净的白色，用于内容容器。
+*   **文本 (主要)**: `gray-900` (#111827) - 几乎是黑色，具有高可读性。
+*   **文本 (次要)**: `gray-500` (#6b7280) - 柔和的灰色，用于标签和辅助信息。
+*   **强调色/主要操作**: `blue-600` (#2563eb) - 强烈、值得信赖的蓝色，用于主要按钮和活动链接。
+*   **边框**: `gray-200` (#e5e7eb) - 微妙的边框，用于分隔。
 
-### Dark Mode (Night)
-*   **Background**: `gray-900` (#111827) - Deep dark blue-gray to minimize eye strain.
-*   **Surface (Cards/Modals)**: `gray-800` (#1f2937) - Slightly lighter dark gray for content containers to provide depth.
-*   **Text (Primary)**: `white` (#ffffff) - Pure white for maximum contrast against dark backgrounds.
-*   **Text (Secondary)**: `gray-400` (#9ca3af) - Light gray for secondary text.
-*   **Accent/Primary Action**: `blue-500` (#3b82f6) - A slightly lighter blue to stand out against the dark background.
-*   **Borders**: `gray-700` (#374151) - Dark borders to define structure without being intrusive.
+### 夜间模式 (Night)
+*   **背景**: `gray-900` (#111827) - 深蓝灰色，最大限度地减少眼睛疲劳。
+*   **表面 (卡片/模态框)**: `gray-800` (#1f2937) - 稍浅的深灰色，为内容容器提供深度。
+*   **文本 (主要)**: `white` (#ffffff) - 纯白色，在深色背景下具有最大对比度。
+*   **文本 (次要)**: `gray-400` (#9ca3af) - 浅灰色，用于次要文本。
+*   **强调色/主要操作**: `blue-500` (#3b82f6) - 稍浅的蓝色，以便在深色背景下脱颖而出。
+*   **边框**: `gray-700` (#374151) - 深色边框，定义结构而不突兀。
 
-## Design Principles
+## 设计原则
 
-1.  **Minimalism**:
-    *   **Whitespace**: Generous use of padding and margins (`p-8`, `space-y-6`) creates a breathable layout.
-    *   **Typography**: Clean sans-serif font (system default via Tailwind) ensures readability. Headers use bold weights (`font-bold`, `font-extrabold`) to establish hierarchy.
-    *   **Visual Noise Reduction**: Avoided unnecessary shadows, gradients, or complex graphics. Shadows are used sparingly (`shadow-md`) only to lift cards off the background.
+1.  **极简主义**:
+    *   **留白**: 慷慨地使用填充和边距 (`p-8`, `space-y-6`) 创造一个透气的布局。
+    *   **排版**: 干净的无衬线字体（通过 Tailwind 使用系统默认字体）确保可读性。标题使用粗体 (`font-bold`, `font-extrabold`) 建立层次结构。
+    *   **减少视觉噪音**: 避免不必要的阴影、渐变或复杂的图形。阴影仅少量使用 (`shadow-md`) 以将卡片从背景中提升出来。
 
-2.  **Responsiveness**:
-    *   The layout is fully responsive, using a max-width container (`max-w-7xl`, `max-w-md`) that centers content on larger screens and adapts to mobile devices via `sm:` breakpoints.
+2.  **响应式**:
+    *   布局完全响应，使用最大宽度容器 (`max-w-7xl`, `max-w-md`) 在大屏幕上居中内容，并通过 `sm:` 断点适应移动设备。
 
-3.  **Usability**:
-    *   **Feedback**: Form errors are displayed clearly in red alert boxes.
-    *   **Navigation**: A simple top navigation bar provides access to key features (Dashboard, Create Resource, Create Task).
-    *   **Consistency**: Reusable components (`Button`, `Input`) ensure consistent styling across the application.
+3.  **可用性**:
+    *   **反馈**: 表单错误在红色警告框中清晰显示。
+    *   **导航**: 简单的顶部导航栏提供对关键功能（仪表板、创建资源、创建任务）的访问。
+    *   **一致性**: 可重用的组件 (`Button`, `Input`) 确保整个应用程序样式的统一。
 
-## Component Structure
+## 组件结构
 
-*   **Layout**: Wraps all authenticated pages, providing the Navbar and consistent page padding.
-*   **Navbar**: Contains the logo, navigation links, theme toggle, and logout button. It adapts its content based on authentication state.
-*   **AuthContext**: Manages user session and JWT token storage in `localStorage`.
-*   **ThemeContext**: Manages the `dark` class on the `<html>` element and persists preference in `localStorage`.
-*   **Pages**:
-    *   `Dashboard`: A clean table view of tasks with status indicators (colored badges).
-    *   `CreateResource`: A dynamic form that adapts based on the selected resource type (Database vs. OSS).
-    *   `CreateTask`: A form that fetches available resources to populate dropdowns, simplifying task creation.
+*   **布局 (Layout)**: 包装所有经过身份验证的页面，提供导航栏和一致的页面填充。
+*   **导航栏 (Navbar)**:包含徽标、导航链接、主题切换和注销按钮。它根据身份验证状态调整其内容。
+*   **AuthContext**: 管理用户会话和 `localStorage` 中的 JWT 令牌存储。
+*   **ThemeContext**: 管理 `<html>` 元素上的 `dark` 类，并在 `localStorage` 中持久化偏好。
+*   **页面 (Pages)**:
+    *   `Dashboard`: 带有状态指示器（彩色徽章）的任务列表的干净表格视图。
+    *   `CreateResource`: 一个动态表单，根据选定的资源类型（数据库与 OSS）进行调整。
+    *   `CreateTask`: 一个表单，它获取可用资源以填充下拉列表，从而简化任务创建。
